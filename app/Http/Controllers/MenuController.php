@@ -95,6 +95,14 @@ class MenuController extends BaseController
      */
 
     public function getMenuItems() {
-        throw new \Exception('implement in coding task 3');
+        try{
+            $events = Event::with('workshops')->whereHas('workshops',function($query){
+                    $query->whereRaw('UNIX_TIMESTAMP(workshops.start) > ?',['UNIX_TIMESTAMP(now())']);
+            })->limit(3)->get();
+            return $events->toArray();
+         } catch (\Exception $e) {
+            throw new \Exception('implement in coding task 3');
+        }
+        
     }
 }

@@ -184,7 +184,7 @@ class EventsController extends BaseController
     public function getFutureEventsWithWorkshops() {
          try{
             $events = Event::with('workshops')->whereHas('workshops',function($query){
-                    $query->whereRaw('UNIX_TIMESTAMP(workshops.start) > ?',['UNIX_TIMESTAMP(events.created_at)']);
+                    $query->whereRaw('UNIX_TIMESTAMP(workshops.start) > ?',['UNIX_TIMESTAMP(now())']);
             })->limit(3)->get();
             return $events->toArray();
          } catch (\Exception $e) {
