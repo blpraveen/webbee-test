@@ -95,7 +95,7 @@ class MenuController extends BaseController
      */
 
     public function getMenuItems() {
-        //try{
+        try{
             $results = [];
             $events = MenuItem::whereNull('parent_id')->get();
             foreach($events as $event){
@@ -109,12 +109,10 @@ class MenuController extends BaseController
                 $event['children'] =  $child;
                 $results[] = $event->toArray();
             }
-            echo '<pre>';
-            print_r($results);exit();
             return $results;
-         //} catch (\Exception $e) {
-            //throw new \Exception('implement in coding task 3');
-        //}
+         } catch (\Exception $e) {
+            throw new \Exception('implement in coding task 3');
+        }
         
     }
 
