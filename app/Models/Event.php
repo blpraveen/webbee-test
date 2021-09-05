@@ -20,6 +20,6 @@ class Event extends Model
      */
     public function workshops()
     {
-        return $this->belongsToMany(Workshop::class);
+        return $this->hasMany(Workshop::class);
     }
 }
