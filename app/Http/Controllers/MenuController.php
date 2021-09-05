@@ -95,14 +95,43 @@ class MenuController extends BaseController
      */
 
     public function getMenuItems() {
-        try{
-            $events = Event::with('workshops')->whereHas('workshops',function($query){
-                    $query->whereRaw('UNIX_TIMESTAMP(workshops.start) > ?',['UNIX_TIMESTAMP(now())']);
-            })->limit(3)->get();
-            return $events->toArray();
-         } catch (\Exception $e) {
-            throw new \Exception('implement in coding task 3');
+        //try{
+            $results = [];
+            $events = MenuItem::whereNull('parent_id')->get();
+            foreach($events as $event){
+               
+                $events_child = MenuItem::whereNotNull('parent_id')->where('parent_id',$event->id)->get();
+                $child = [];
+                foreach($events_child as $event_child){
+                     $res = $this->loopChildern($event_child);
+                     $child[] = $res;
+                }
+                $event['children'] =  $child;
+                $results[] = $event->toArray();
+            }
+            echo '<pre>';
+            print_r($results);exit();
+            return $results;
+         //} catch (\Exception $e) {
+            //throw new \Exception('implement in coding task 3');
+        //}
+        
+    }
+
+    function loopChildern($event){
+        $child = [];
+        if($event->parent_id){
+           $events = MenuItem::where('parent_id',$event->parent_id)->get();
+           $child = [];
+           foreach($events  as $event){
+            if($event->parend_id){
+                $event['children'] =   $this->loopChildern($event);
+            }
+            $child[] = $event->toArray(); 
+           }
+           $event['children'] = $child;
         }
         
+        return $event->toArray();
     }
 }

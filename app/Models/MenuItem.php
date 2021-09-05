@@ -14,4 +14,13 @@ class MenuItem extends Model
      * @var array
      */
 	protected $guarded = [];
+
+
+	 /**
+     * Get the workshops for the event.
+     */
+    public function menu()
+    {
+        return $this->hasOne(MenuItem::class);
+    }
 }
