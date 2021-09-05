@@ -95,20 +95,22 @@ class MenuController extends BaseController
      */
 
     public function getMenuItems() {
-        try{
+       try{
             $results = [];
             $events = MenuItem::whereNull('parent_id')->get();
+            echo '<pre>';
             foreach($events as $event){
                
-                $events_child = MenuItem::whereNotNull('parent_id')->where('parent_id',$event->id)->get();
+                $events_childs = MenuItem::whereNotNull('parent_id')->where('parent_id',$event->id)->get();
                 $child = [];
-                foreach($events_child as $event_child){
-                     $res = $this->loopChildern($event_child);
-                     $child[] = $res;
-                }
-                $event['children'] =  $child;
-                $results[] = $event->toArray();
+                $data = $events_childs->toArray();
+                $events_childs = $this->loopChilderns($data );
+                
+                $event['children'] =$events_childs;
+                $results[]  = $event->toArray();
             }
+            
+            
             return $results;
          } catch (\Exception $e) {
             throw new \Exception('implement in coding task 3');
@@ -116,20 +118,32 @@ class MenuController extends BaseController
         
     }
 
-    function loopChildern($event){
-        $child = [];
-        if($event->parent_id){
-           $events = MenuItem::where('parent_id',$event->parent_id)->get();
-           $child = [];
-           foreach($events  as $event){
-            if($event->parend_id){
-                $event['children'] =   $this->loopChildern($event);
-            }
-            $child[] = $event->toArray(); 
-           }
-           $event['children'] = $child;
+    function loopChilderns(&$events_child){
+        if(count($events_child)){
+        $result = [];
+        foreach($events_child as $event){
+            $events = MenuItem::where('parent_id',$event['id'])->get();
+            if(count($events)){
+                   $child = [];
+                   $events = $events->toArray();
+                   foreach( $events as $event_n){
+                        $events_c = MenuItem::whereNotNull('parent_id')->where('parent_id',$event_n['id'])->get()->toArray();
+                        if(count($events_c )){
+                            $res =   $this->loopChilderns($events_c);
+                            $event_n['children'][] =$res;
+                        }
+                        if(!empty($event_n)){
+                            $event['children'][]  = $event_n;
+                        }
+                   }
+                   
+                    }
+                    $result[] = $event;
+                }
+            }   
+
+            return $result; 
         }
         
-        return $event->toArray();
-    }
+    
 }
